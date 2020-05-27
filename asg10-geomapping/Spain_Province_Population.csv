@@ -1,0 +1,53 @@
+province,sex,period,population,area
+Albacete,Total,2019,388167,14926
+Alicante,Total,2019,1858683,5817
+Almería,Total,2019,716820,8775
+Álava,Total,2019,331549,3037
+Asturias,Total,2019,1022800,10604
+Ávila,Total,2019,157640,8050
+Badajoz,Total,2019,673559,21766
+Baleares,Total,2019,1149460,4992
+Barcelona,Total,2019,5664579,7728
+Vizcaya,Total,2019,1152651,2217
+Burgos,Total,2019,356958,14292
+Cáceres,Total,2019,394151,19868
+Cádiz,Total,2019,1240155,7436
+Cantabria,Total,2019,581078,5321
+Castellón,Total,2019,579962,6632
+Ciudad Real,Total,2019,495761,19813
+Córdoba,Total,2019,782979,13771
+A Coruña,Total,2019,1119596,7950
+Cuenca,Total,2019,196329,17140
+Guipúzcoa,Total,2019,723576,1909
+Girona,Total,2019,771044,5910
+Granada,Total,2019,914678,12647
+Guadalajara,Total,2019,257762,12214
+Huelva,Total,2019,521870,10128
+Huesca,Total,2019,220461,15636
+Jaén,Total,2019,633564,13496
+León,Total,2019,460001,15581
+Lleida,Total,2019,434930,12173
+Lugo,Total,2019,329587,9856
+Madrid,Total,2019,6663394,8028
+Málaga,Total,2019,1661785,7308
+Murcia,Total,2019,1493898,11313
+Navarra,Total,2019,654214,10391
+Ourense,Total,2019,307651,7273
+Palencia,Total,2019,160980,8052
+Las Palmas,Total,2019,1120406,4066
+Pontevedra,Total,2019,942665,4495
+La Rioja,Total,2019,316798,5045
+Salamanca,Total,2019,330119,12350
+Santa Cruz de Tenerife,Total,2019,1032983,3381
+Segovia,Total,2019,153129,6921
+Sevilla,Total,2019,1942389,14036
+Soria,Total,2019,88636,10306
+Tarragona,Total,2019,804664,6303
+Teruel,Total,2019,134137,14810
+Toledo,Total,2019,694844,15370
+Valencia,Total,2019,2565124,10806
+Valladolid,Total,2019,519546,8110
+Zamora,Total,2019,172539,10561
+Zaragoza,Total,2019,964693,17274
+Ceuta,Total,2019,84777,20
+Melilla,Total,2019,86487,28
