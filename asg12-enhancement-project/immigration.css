@@ -1,0 +1,97 @@
+body {
+    background-color: #FFF;
+    color: steelblue;
+    font-family: Verdana, Helvetica, Arial, sans-serif;
+    font-size: 100%;
+}
+
+h1 {
+    text-align: center;
+    background-color: #EFEFEF;
+    border-top: 2px solid steelblue;
+    border-bottom: 2px solid steelblue;
+    padding: 10px;
+}
+
+/* align charts side by side */
+.big_div {
+  white-space: nowrap;
+}
+
+.chart1_div {
+  float:left;
+}
+
+.slider_div {
+  float:left;
+  clear:left;
+}
+
+.slider_div {
+  position:relative;
+  display:inline-block;
+}
+
+/* pie chart title and history note */
+#pie-chart-title {
+    text-anchor: middle;
+    fill: steelblue;
+    font-family: Verdana, Helvetica, Arial, sans-serif;
+    font-size: 110%;
+    font-weight: bold;
+}
+
+#pie-chart-hstnote {
+    text-anchor: middle;
+    fill: steelblue;
+    font-family: Arial, sans-serif;
+    font-size: 80%;
+}
+
+
+/* chart axis */
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    fill: #000;
+    font-size: 12px;
+}
+
+
+
+/* slider */
+.track,
+.track-inset,
+.track-overlay {
+  stroke-linecap: round;
+}
+
+.track {
+  stroke: #000;
+  stroke-opacity: 0.3;
+  stroke-width: 10px;
+}
+
+.track-inset {
+  stroke: #ddd;
+  stroke-width: 8px;
+}
+
+.track-overlay {
+  pointer-events: stroke;
+  stroke-width: 50px;
+  stroke: transparent;
+  cursor: crosshair;
+}
+
+.slider-handle {
+  fill: #fff;
+  stroke: #000;
+  stroke-opacity: 0.5;
+  stroke-width: 1.25px;
+}
