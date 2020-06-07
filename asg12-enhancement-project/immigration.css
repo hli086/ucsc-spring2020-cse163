@@ -13,6 +13,10 @@ h1 {
     padding: 10px;
 }
 
+.inst_div {
+    color: black;
+}
+
 /* align charts side by side */
 .big_div {
   white-space: nowrap;
