@@ -32,6 +32,11 @@ h1 {
   display:inline-block;
 }
 
+.desc_div {
+    float:left;
+    white-space: normal;
+}
+
 /* pie chart title and history note */
 #pie-chart-title {
     text-anchor: middle;
