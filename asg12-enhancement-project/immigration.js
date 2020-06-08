@@ -293,17 +293,23 @@ d3.csv("immigration.csv").then(function(data) {
         .attr("class", "track")
         .attr("x1", x.range()[0])
         .attr("x2", x.range()[1])
-      .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+        .select(function() {
+            return this.parentNode.appendChild(this.cloneNode(true));
+        })
         .attr("class", "track-inset")
-      .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+        .select(function() {
+            return this.parentNode.appendChild(this.cloneNode(true));
+        })
         .attr("class", "track-overlay")
         .call(d3.drag()
-            .on("start.interrupt", function() { slider.interrupt(); })
-            .on("start drag", function() {
+              .on("start.interrupt", function() { slider.interrupt(); })
+              .on("start drag", function() {
                 
+                // print year on current slider position
                 //console.log(x.invert(d3.event.x));
                 
                 time(x.invert(d3.event.x));
+            
             }));
     
     // Create slider handle
@@ -320,6 +326,9 @@ d3.csv("immigration.csv").then(function(data) {
     //    });
     
     
+    // last pie chart index, data year, slider year
+    let pie_chart_info_last = [0, 0, 0];
+    
     function time(h) {
         // move the black bar on the area chart with the slider handle
         d3.select('.slide')
@@ -330,113 +339,16 @@ d3.csv("immigration.csv").then(function(data) {
         
         // move the slider handle
         handle.attr("cx", x(h));
+        
         //console.log((h.getUTCFullYear()));
         
         //console.log(h.getUTCFullYear()<=1970);
         
         //console.log(new Date("1855").getUTCFullYear());
         
-        // default index, data year, slider year
-        let pie_chart_info = [12, 1970, 1970];
-        
-        // determine which pie chart to draw
-        if (h.getUTCFullYear() <= 1855) {
-            //console.log("before 1855");
-            pie_chart_info[0] = 0;
-            pie_chart_info[1] = 1850;
-        } else
-        if (h.getUTCFullYear() <= 1865) {
-            //console.log("before 1865");
-            pie_chart_info[0] = 1;
-            pie_chart_info[1] = 1860;
-        } else
-        if (h.getUTCFullYear() <= 1875) {
-            //console.log("before 1875");
-            pie_chart_info[0] = 2;
-            pie_chart_info[1] = 1870;
-        } else
-        if (h.getUTCFullYear() <= 1885) {
-            //console.log("before 1885");
-            pie_chart_info[0] = 3;
-            pie_chart_info[1] = 1880;
-        } else
-        if (h.getUTCFullYear() <= 1895) {
-            //console.log("before 1895");
-            pie_chart_info[0] = 4;
-            pie_chart_info[1] = 1890;
-        } else
-        if (h.getUTCFullYear() <= 1905) {
-            pie_chart_info[0] = 5;
-            pie_chart_info[1] = 1900;
-            
-        } else
-        if (h.getUTCFullYear() <= 1915) {
-            pie_chart_info[0] = 6;
-            pie_chart_info[1] = 1910;
-            
-        } else
-        if (h.getUTCFullYear() <= 1925) {
-            pie_chart_info[0] = 7;
-            pie_chart_info[1] = 1920;
-            
-        } else
-        if (h.getUTCFullYear() <= 1935) {
-            pie_chart_info[0] = 8;
-            pie_chart_info[1] = 1930;
-            
-        } else
-        if (h.getUTCFullYear() <= 1945) {
-            pie_chart_info[0] = 9;
-            pie_chart_info[1] = 1940;
-            
-        } else
-        if (h.getUTCFullYear() <= 1955) {
-            pie_chart_info[0] = 10;
-            pie_chart_info[1] = 1950;
-            
-        } else
-        if (h.getUTCFullYear() <= 1965) {
-            pie_chart_info[0] = 11;
-            pie_chart_info[1] = 1960;
-            
-        } else
-        if (h.getUTCFullYear() <= 1975) {
-            pie_chart_info[0] = 12;
-            pie_chart_info[1] = 1970;
-            
-        } else
-        if (h.getUTCFullYear() <= 1985) {
-            pie_chart_info[0] = 13;
-            pie_chart_info[1] = 1980;
-            
-        } else
-        if (h.getUTCFullYear() <= 1995) {
-            pie_chart_info[0] = 14;
-            pie_chart_info[1] = 1990;
-            
-        } else
-        if (h.getUTCFullYear() <= 2005) {
-            pie_chart_info[0] = 15;
-            pie_chart_info[1] = 2000;
-            
-        } else
-        if (h.getUTCFullYear() <= 2015) {
-            pie_chart_info[0] = 16;
-            pie_chart_info[1] = 2010;
-            
-        }
-        
-        pie_chart_info[2] = h.getUTCFullYear();
-        
-        //console.log((pie_chart_info));
-        
-        // Pass only the data of a specific year to the function
-        draw_pie_chart(data[pie_chart_info[0]], pie_chart_info);
-            
+        updatePieChart(data, h); // h is dataYear
+             
     }
-    
-    // default slider handle and black bar position is at 1970
-    time(new Date("1970")); 
     
     
     
@@ -447,14 +359,36 @@ d3.csv("immigration.csv").then(function(data) {
     //let data1 = [{"letter":"q","presses":1},{"letter":"w","presses":5},{"letter":"e","presses":2}];
     //console.log(data1);
     
-    //console.log(data[0]);
+    // Declare pie, argc generator and pie chart element
+    let pie;
+    let arc;
+    let g_pie;
     
-    function draw_pie_chart(data, pie_chart_info) {
-
-        // remove existing pie chart
-        svg_pie_chart.selectAll("*")
-            .remove();
+    // Default year
+    const defaultYear = new Date("1970");
+    
+    // Draw the default pie chart
+    draw_pie_chart(data, defaultYear);
+    
+    // default slider handle and black bar position
+    time(defaultYear);
+    
+    function draw_pie_chart(dataset, h) {
         
+        let pie_chart_info = selectPieDataByYear(h);
+        
+        // Same data year, no need to redraw
+        if (pie_chart_info_last[1] == pie_chart_info[1]) {
+            return;
+        }
+        
+        // Update pie chart info
+        pie_chart_info_last = pie_chart_info;
+        
+        // Data of a specific year
+        let data = dataset[pie_chart_info[0]];
+        
+        // Extract data of a specific year from the dataset
         let pieData = [];
 
         // Parse row
@@ -465,10 +399,11 @@ d3.csv("immigration.csv").then(function(data) {
             if (key != "year"){
                 pieData.push({key, value});
             }
-            
         }
-
+    
         //console.log(pieData);
+        
+        
         
         ///////////////////////////////
         // PIE CHART HIGHLIGHT GROUP //
@@ -485,7 +420,7 @@ d3.csv("immigration.csv").then(function(data) {
         }
 
         // And when it is not hovered anymore
-        let noHighlightPie = function(d) {
+        let noHighlightPie = function() {
             d3.selectAll(".myArea").style("opacity", 1);
             d3.selectAll(".myPie").style("opacity", 1);
         }
@@ -518,45 +453,52 @@ d3.csv("immigration.csv").then(function(data) {
         ////////////////////
 
         // Pie generator
-        let pie = d3.pie()
-            .value(function(d) {
-                return d.value;
-            })(pieData);
+        //let pie = d3.pie()
+        pie = d3.pie()
+        .value(function(d) {
+            return d.value;
+        })
+        .sort(null);
         
         // Arc generator
-        let arc = d3.arc()
-        .outerRadius(radius - 10)
-        .innerRadius(0);
-
-        let labelArc = d3.arc()
-        .outerRadius(radius - 40)
-        .innerRadius(radius - 40);
-
-        let g_pie = svg_pie_chart.selectAll("arc")
-        .data(pie)
-        .enter().append("g")
-        .attr("class", "arc");
-
-        g_pie.append("path")
-        .attr("class", d => `myPie ${d.data.key}`)
-        .attr("d", arc)
-        .style("fill", d => color(d.data.key))
-        .on("mouseover", function(d) {
-            highlightPie(d);
-            toolTipShow(d);
-        })
-        .on("mouseleave", function(d) {
-            noHighlightPie(d);
-            toolTipHide();
-        })
-        .on('mousemove', function() {
-            toolTipMove();
-        })
-        ;
+        arc = d3.arc()
+            .outerRadius(radius - 10)
+            .innerRadius(0);
+        
+        // Create pie chart
+        g_pie = svg_pie_chart.selectAll("arc")
+            .data(pie((pieData)))
+            .enter()
+            .append("path")
+            .attr("class", d => `myPie ${d.data.key}`)
+            .attr("d", arc)
+            .style("fill", d => color(d.data.key))
+            // store the initial angles for smooth pie chart transition
+            .each(function(d) {
+                if (d.data.key == "Mexico") {
+                    //console.log(d);
+                }
+                this._current = d;
+            })
+            .on("mouseover", function(d) {
+                highlightPie(d);
+                toolTipShow(d);
+            })
+            .on("mouseleave", function() {
+                noHighlightPie();
+                toolTipHide();
+            })
+            .on('mousemove', function() {
+                toolTipMove();
+            })
+            ;
         
         
         let dataYear = pie_chart_info[1]; // year in decades
         let sliderYear = pie_chart_info[2]; // year on the slider
+        
+        //console.log(`dataYear: ${dataYear}`);
+        //console.log(`sliderYear: ${sliderYear}`);
         
         //Pie Chart Title with changing year
         svg_pie_chart.append("text")
@@ -570,62 +512,245 @@ d3.csv("immigration.csv").then(function(data) {
         let pie_chart_hstnote = svg_pie_chart.append("text")
             .attr("id", "pie-chart-hstnote")
             .attr("class", "hstnote")
-            .attr("x", 0)             
+            .attr("x", 0)
             .attr("y", radius+10)
             .attr("text-anchor", "middle");
         
-        
-        
         // Check each event and show history note
-        if (sliderYear >= 1840 && sliderYear < 1860) {
-            d3.select('.hstnote')
-                .text('1840-1860: Irish potato famine, many flee Ireland');
-        }
-        if (dataYear == 1860) {
-            d3.select('.hstnote')
-                .text('1859: California passes law that bans all immigration from China');
-        }
-        if (dataYear == 1880) {
-            d3.select('.hstnote')
-                .text('1882: Chinese Exclusion Act bans all immigration from China into California');
-        }
-        if (dataYear == 1910) {
-            d3.select('.hstnote')
-                .text('1910-1917: Mexican revolution causes refugees to flee to the US');
-        }
-        if (dataYear == 1930) {
-            d3.select('.hstnote')
-                .text('1930: The Great Depression causes downturn in immigration');
-        }
-        if (dataYear == 1940) {
-            d3.select('.hstnote')
-                .text('1943: US and China ally against Japan during WWII, Chinese Exclusion Act repealed');
-        }
-        if (dataYear == 1960) {
-            d3.select('.hstnote')
-                .text('1965: Immigration Nationality Act allows visas based on skill and family');
-        }
-        if (sliderYear >= 1970 && sliderYear <= 1973) {
-            d3.select('.hstnote')
-                .text('1970-1973: US sponsored coup in Chile');
-        }
-        if (sliderYear >= 1975 && sliderYear <= 1977) {
-            d3.select('.hstnote')
-                .html(`<tspan x="0" text-anchor="middle">1976: US sponsored coup in Argentina</tspan><tspan x="0" text-anchor="middle" dy = "20">1976: First Mexican peso crisis</tspan>`);
-        }
-        if (sliderYear >= 1978 && sliderYear <= 1979) {
-            d3.select('.hstnote')
-                .text('1978-1979: Iranian revolution sparks mass exodus');
-        }
-        if (sliderYear >= 1981 && sliderYear <= 1990) {
-            d3.select('.hstnote')
-                .text('1981-1990: US sponsored coup in Nicaragua (Iran-Contra)');
-        }
-        if (sliderYear >= 1991 && sliderYear <= 1998) {
-            d3.select('.hstnote')
-                .text('1994: NAFTA passes, Mexican goods production declines');
-        }
+        selectHstNote(dataYear, sliderYear);
          
     }
 
+
+    
+    function updatePieChart(dataset, h) {
+
+        let pie_chart_info = selectPieDataByYear(h);
+
+        // same data year, no need to redraw
+        if (pie_chart_info_last[1] == pie_chart_info[1]) {
+            return;
+        }
+
+        // update pie chart info
+        pie_chart_info_last = pie_chart_info;
+
+        // data of a specific year
+        let data = dataset[pie_chart_info[0]];
+        
+        // Extract data of a specific year from the dataset
+        let pieData = [];
+        
+        // Parse row
+        for (let [key, value] of Object.entries(data)) {
+
+            //console.log(`${key}: ${value}`);
+
+            if (key != "year"){
+                pieData.push({key, value});
+            }
+
+        }
+
+
+        //console.log(pieData);
+
+
+        //////////////////////
+        // UPDATE PIE CHART //
+        //////////////////////
+
+        // Update pie generator value
+        pie.value(function(d) {
+            return d.value;
+        });
+        
+        // Update pie chart element values
+        g_pie = g_pie.data(pie((pieData)));
+        
+        // Smooth pie chart transition
+        g_pie.transition().duration(500).attrTween("d", arcTween);
+        
+        // function for smooth pie chart transition
+        function arcTween(a) {
+            if (a.data.key == "Mexico") {
+
+                //console.log(this._current);
+                //console.log(a);
+
+            }
+
+            let i = d3.interpolate(this._current, a);
+            this._current = i(0);
+            return function(t) {
+                return arc(i(t));
+            };
+        }
+        
+        let dataYear = pie_chart_info[1]; // year in decades
+        let sliderYear = pie_chart_info[2]; // year on the slider
+        
+        //Pie Chart Title with changing year
+        d3.select('#pie-chart-title')
+            .text(`${dataYear} Immigration Background`);
+        
+        // Check each event and show history note
+        selectHstNote(dataYear, sliderYear);
+        
+    }
+    
+    
 });
+
+
+
+function selectPieDataByYear(h) {
+    // current pie chart index, data year, slider year
+    let pie_chart_info = [];
+
+    // determine which pie chart to draw
+    if (h.getUTCFullYear() <= 1855) {
+        //console.log("before 1855");
+        pie_chart_info[0] = 0;
+        pie_chart_info[1] = 1850;
+    } else
+    if (h.getUTCFullYear() <= 1865) {
+        //console.log("before 1865");
+        pie_chart_info[0] = 1;
+        pie_chart_info[1] = 1860;
+    } else
+    if (h.getUTCFullYear() <= 1875) {
+        //console.log("before 1875");
+        pie_chart_info[0] = 2;
+        pie_chart_info[1] = 1870;
+    } else
+    if (h.getUTCFullYear() <= 1885) {
+        //console.log("before 1885");
+        pie_chart_info[0] = 3;
+        pie_chart_info[1] = 1880;
+    } else
+    if (h.getUTCFullYear() <= 1895) {
+        //console.log("before 1895");
+        pie_chart_info[0] = 4;
+        pie_chart_info[1] = 1890;
+    } else
+    if (h.getUTCFullYear() <= 1905) {
+        pie_chart_info[0] = 5;
+        pie_chart_info[1] = 1900;
+
+    } else
+    if (h.getUTCFullYear() <= 1915) {
+        pie_chart_info[0] = 6;
+        pie_chart_info[1] = 1910;
+
+    } else
+    if (h.getUTCFullYear() <= 1925) {
+        pie_chart_info[0] = 7;
+        pie_chart_info[1] = 1920;
+
+    } else
+    if (h.getUTCFullYear() <= 1935) {
+        pie_chart_info[0] = 8;
+        pie_chart_info[1] = 1930;
+
+    } else
+    if (h.getUTCFullYear() <= 1945) {
+        pie_chart_info[0] = 9;
+        pie_chart_info[1] = 1940;
+
+    } else
+    if (h.getUTCFullYear() <= 1955) {
+        pie_chart_info[0] = 10;
+        pie_chart_info[1] = 1950;
+
+    } else
+    if (h.getUTCFullYear() <= 1965) {
+        pie_chart_info[0] = 11;
+        pie_chart_info[1] = 1960;
+
+    } else
+    if (h.getUTCFullYear() <= 1975) {
+        pie_chart_info[0] = 12;
+        pie_chart_info[1] = 1970;
+
+    } else
+    if (h.getUTCFullYear() <= 1985) {
+        pie_chart_info[0] = 13;
+        pie_chart_info[1] = 1980;
+
+    } else
+    if (h.getUTCFullYear() <= 1995) {
+        pie_chart_info[0] = 14;
+        pie_chart_info[1] = 1990;
+
+    } else
+    if (h.getUTCFullYear() <= 2005) {
+        pie_chart_info[0] = 15;
+        pie_chart_info[1] = 2000;
+
+    } else
+    if (h.getUTCFullYear() <= 2015) {
+        pie_chart_info[0] = 16;
+        pie_chart_info[1] = 2010;
+
+    }
+
+    pie_chart_info[2] = h.getUTCFullYear();
+    
+    return pie_chart_info;
+    
+}
+
+
+
+function selectHstNote(dataYear, sliderYear) {
+    if (sliderYear >= 1840 && sliderYear <= 1860) {
+        d3.select('.hstnote')
+            .text('1840-1860: Irish potato famine, many flee Ireland');
+    }
+    if (sliderYear == 1859) {
+        d3.select('.hstnote')
+            .text('1859: California passes law that bans all immigration from China');
+    }
+    if (dataYear == 1880) {
+        d3.select('.hstnote')
+            .text('1882: Chinese Exclusion Act bans all immigration from China into California');
+    }
+    if (dataYear == 1910) {
+        d3.select('.hstnote')
+            .text('1910-1917: Mexican revolution causes refugees to flee to the US');
+    }
+    if (dataYear == 1930) {
+        d3.select('.hstnote')
+            .text('1930: The Great Depression causes downturn in immigration');
+    }
+    if (dataYear == 1940) {
+        d3.select('.hstnote')
+            .text('1943: US and China ally against Japan during WWII, Chinese Exclusion Act repealed');
+    }
+    if (dataYear == 1960) {
+        d3.select('.hstnote')
+            .text('1965: Immigration Nationality Act allows visas based on skill and family');
+    }
+    if (sliderYear >= 1970 && sliderYear <= 1973) {
+        d3.select('.hstnote')
+            .text('1970-1973: US sponsored coup in Chile');
+    }
+    if (sliderYear >= 1975 && sliderYear <= 1977) {
+        d3.select('.hstnote')
+            .html(`<tspan x="0" text-anchor="middle">1976: US sponsored coup in Argentina</tspan><tspan x="0" text-anchor="middle" dy = "20">1976: First Mexican peso crisis</tspan>`);
+    }
+    if (sliderYear >= 1978 && sliderYear <= 1979) {
+        d3.select('.hstnote')
+            .text('1978-1979: Iranian revolution sparks mass exodus');
+    }
+    if (sliderYear >= 1981 && sliderYear <= 1990) {
+        d3.select('.hstnote')
+            .text('1981-1990: US sponsored coup in Nicaragua (Iran-Contra)');
+    }
+    if (sliderYear >= 1991 && sliderYear <= 1998) {
+        d3.select('.hstnote')
+            .text('1994: NAFTA passes, Mexican goods production declines');
+    }
+    
+}
