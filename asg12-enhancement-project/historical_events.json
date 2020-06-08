@@ -1,0 +1,82 @@
+{
+  "events": [
+    {
+      "startDate": "1840",
+      "endDate": "1860",
+      "region": "Europe",
+      "description": "1840-1860: Irish potato famine, many flee Ireland"
+    },
+    {
+      "startDate": "1859",
+      "endDate": "1859",
+      "region": "Eastern_Asia",
+      "description": "1859: California passes law that bans all immigration from China"
+    },
+    {
+      "startDate": "1882",
+      "endDate": "1882",
+      "region": "Eastern_Asia",
+      "description": "1882: Chinese Exclusion Act bans all immigration from China into California"
+    },
+    {
+      "startDate": "1910",
+      "endDate": "1917",
+      "region": "Mexico",
+      "description": "1910-1917: Mexican revolution causes refugees to flee to the US"
+    },
+    {
+      "startDate": "1929",
+      "endDate": "1933",
+      "region": "USA",
+      "description": "1930: The Great Depression causes downturn in immigration"
+    },
+    {
+      "startDate": "1943",
+      "endDate": "1943",
+      "region": "Eastern_Asia",
+      "description": "1943: US and China ally against Japan during WWII, Chinese Exclusion Act repealed"
+    },
+    {
+      "startDate": "1965",
+      "endDate": "1965",
+      "region": "USA",
+      "description": "1965: Immigration Nationality Act allows visas based on skill and family"
+    },
+    {
+      "startDate": "1970",
+      "endDate": "1973",
+      "region": "Latin_America",
+      "description": "1970-1973: US sponsored coup in Chile"
+    },
+    {
+      "startDate": "1975",
+      "endDate": "1976",
+      "region": "Latin_America",
+      "description": "1976: US sponsored coup in Argentina"
+    },
+    {
+      "startDate": "1976",
+      "endDate": "1978",
+      "region": "Mexico",
+      "description": "1976: First Mexican peso crisis"
+    },
+    {
+      "startDate": "1978",
+      "endDate": "1979",
+      "region": "Western_Asia",
+      "description": "1978-1979: Iranian revolution sparks mass exodus"
+    },
+    {
+      "startDate": "1981",
+      "endDate": "1990",
+      "region": "Latin_America",
+      "description": "1981-1990: US sponsored coup in Nicaragua (Iran-Contra)"
+    },
+    {
+      "startDate": "1994",
+      "endDate": "1998",
+      "region": "Mexico",
+      "description": "1994: NAFTA passes, Mexican goods production declines"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 body {
-    background-color: #FFF;
+    background-color: #FFFFFF;
     color: steelblue;
     font-family: Verdana, Helvetica, Arial, sans-serif;
     font-size: 100%;
@@ -11,6 +11,10 @@ h1 {
     border-top: 2px solid steelblue;
     border-bottom: 2px solid steelblue;
     padding: 10px;
+}
+
+h4 {
+    
 }
 
 /* area chart usage */
@@ -60,7 +64,7 @@ h1 {
 
 .tooltip {
     background: #eee;
-    box-shadow: 0 0 5px #999999;
+    box-shadow: 0 0 15px #999999;
     color: #333;
     display: none;
     font-size: 12px;
@@ -87,6 +91,17 @@ h1 {
     font-size: 12px;
 }
 
+
+#label {
+    font-size: 16px;
+}
+
+.event_timeline_label {
+    font-size: 16px;
+    font-family: sans-serif;
+    fill: black;
+    font-weight: bold;
+}
 
 
 /* slider */

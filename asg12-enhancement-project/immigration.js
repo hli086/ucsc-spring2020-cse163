@@ -7,8 +7,8 @@
 // Modified by Herbert Li
 
 // set the dimensions and margins of the graph
-let margin = {top: 50, bottom: 50, left: 80, right: 180},
-    width = 860 - margin.left - margin.right,
+let margin = {top: 50, bottom: 60, left: 80, right: 180},
+    width = 900 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
 // append the svg for area chart to the body of the page
@@ -56,6 +56,8 @@ svg.append('line')
 const parseTime = d3.timeParse("%Y");
 
 console.log(parseTime(1970));
+
+
 
 // Parse the Data
 d3.csv("immigration.csv").then(function(data) {
@@ -106,6 +108,77 @@ d3.csv("immigration.csv").then(function(data) {
     
     
     
+    ////////////////////////////////
+    // HISTORICAL EVENTS TIMELINE //
+    ////////////////////////////////
+    
+    let events;
+    
+    // Parse historical events text
+    d3.json("historical_events.json").then(function(histEventsData) {
+    
+        console.log(histEventsData.events);
+        
+        // format the data
+        histEventsData.events.forEach(function(d) {
+            d.startDate = parseTime(d.startDate);
+            d.endDate = parseTime(d.endDate);
+        });
+        
+        // Add a rectangle for each event
+        events = svg.append('g');
+        events
+            .selectAll("events")
+            .data(histEventsData.events)
+            .enter()
+            .append("rect")
+            .attr("class", "events")
+            .attr("x", function (d) {
+                return x(d.startDate);
+            })
+            .attr("y", height + margin.bottom - size)
+            .attr("width", function (d) {
+                // if start and end date are same, then extend end date by 1 year
+                if (x(d.endDate) == x(d.startDate)) {
+                    
+                    //console.log(d.endDate);
+                    
+                    let newEndDate = d.endDate;
+                    newEndDate.setFullYear(newEndDate.getFullYear() + 1);
+                    
+                    //console.log(date);
+                    
+                    return x(newEndDate) - x(d.startDate);
+                    
+                } else {
+                    return x(d.endDate) - x(d.startDate);
+                }
+            })
+            .attr("height", size)
+            .style("fill", function (d) {
+                if (d.region == "USA") {
+                    return "black";
+                } else {
+                    return color(d.region);
+                }
+            })
+            // Add event description
+            .append("svg:title")
+            .text(d => d.description)
+            ;
+        
+        // Add label for event timeline
+        svg.append("text")
+        .attr("class", "event_timeline_label")
+        .attr("x", width + 20)
+        .attr("y", height + margin.bottom - size/4)
+        .attr("text-anchor", "start")
+        .text("Event Timeline");
+
+    });
+    
+    
+    
     /////////////////////////////
     // BRUSHING AND AREA CHART //
     /////////////////////////////
@@ -131,7 +204,7 @@ d3.csv("immigration.csv").then(function(data) {
 
     // Create the scatter letiable: where both the circles and the brush take place
     let areaChart = svg.append('g')
-        .attr("clip-path", "url(#clip)")
+        .attr("clip-path", "url(#clip)");
 
     // Area chart generator
     let area = d3.area()
@@ -159,7 +232,7 @@ d3.csv("immigration.csv").then(function(data) {
     let idleTimeout;
     function idled() { idleTimeout = null; }
 
-    // A function that update the chart for given boundaries
+    // A function that update the chart and event timeline for given boundaries
     function updateChart() {
         let extent = d3.event.selection;
         
@@ -174,12 +247,22 @@ d3.csv("immigration.csv").then(function(data) {
             areaChart.select(".brush").call(brush.move, null);
         }
 
-        // Update axis and area chart position
+        // Update axis, area chart, and events position
         xAxis.transition().duration(1000).call(xAxisDrawFunc);
         areaChart
-          .selectAll("path")
-          .transition().duration(1000)
-          .attr("d", area);
+            .selectAll("path")
+            .transition().duration(1000)
+            .attr("d", area);
+        events
+            .selectAll("rect")
+            .transition().duration(1000)
+            .attr("x", function (d) {
+                return x(d.startDate);
+            })
+            .attr("width", function (d) {
+                return x(d.endDate) - x(d.startDate);
+            })
+            ;
 
     }
 
@@ -192,7 +275,7 @@ d3.csv("immigration.csv").then(function(data) {
     // Add X axis
     let xAxisDrawFunc = d3
         .axisBottom(x)
-        .ticks(d3.timeYear.every(20))
+        .ticks(d3.timeYear.every(20)) // tick for every 20 years
         ;
     let xAxis = svg.append("g")
         .attr("class", "x axis")
@@ -202,9 +285,10 @@ d3.csv("immigration.csv").then(function(data) {
 
     // Add X axis label:
     svg.append("text")
-        .attr("x", width + 110)
+        .attr("id", "label")
+        .attr("x", width + 20)
         .attr("y", height + 20)
-        .attr("text-anchor", "end")
+        .attr("text-anchor", "start")
         .text("Time (year)");
 
     // Add Y axis
@@ -214,6 +298,7 @@ d3.csv("immigration.csv").then(function(data) {
 
     // Add Y axis label:
     svg.append("text")
+        .attr("id", "label")
         .attr("x", 0)
         .attr("y", -20)
         .attr("text-anchor", "start")
@@ -268,8 +353,9 @@ d3.csv("immigration.csv").then(function(data) {
         .enter()
         .append("text")
         .attr("x", width+20 + size*1.2)
-        .attr("y", function(d,i){ return 50 + i*(size+15) + (size/2)}) // 100 is where the first dot appears. 25 is the distance between dots
-        .style("fill", function(d){ return color(d)})
+        // 100 is where the first dot appears. 25 is the distance between dots
+        .attr("y", function(d,i){ return 50 + i*(size+15) + (size/2)})
+        .style("fill", d => color(d))
         .text(d => d.replace("_", " ")) // replace underscore with space in label
         .attr("text-anchor", "left")
         .style("alignment-baseline", "middle")
@@ -346,6 +432,7 @@ d3.csv("immigration.csv").then(function(data) {
         
         //console.log(new Date("1855").getUTCFullYear());
         
+        // update pie chart data
         updatePieChart(data, h); // h is dataYear
              
     }
@@ -367,7 +454,7 @@ d3.csv("immigration.csv").then(function(data) {
     // Default year
     const defaultYear = new Date("1970");
     
-    // Draw the default pie chart
+    // Initialize and draw the pie chart
     draw_pie_chart(data, defaultYear);
     
     // default slider handle and black bar position
@@ -376,6 +463,12 @@ d3.csv("immigration.csv").then(function(data) {
     function draw_pie_chart(dataset, h) {
         
         let pie_chart_info = selectPieDataByYear(h);
+        
+        let dataYear = pie_chart_info[1]; // year in decades
+        let sliderYear = pie_chart_info[2]; // year on the slider
+        
+        // Check each event and show history note
+        selectHstNote(dataYear, sliderYear);
         
         // Same data year, no need to redraw
         if (pie_chart_info_last[1] == pie_chart_info[1]) {
@@ -432,7 +525,7 @@ d3.csv("immigration.csv").then(function(data) {
         ///////////////////////
         
         let toolTipShow = function(d) {
-            tooltip.select('.country').html(d.data.key);
+            tooltip.select('.country').html(d.data.key.replace("_", " "));
             tooltip.select('.percentage').html(d.data.value + '%');
             tooltip.style('display', 'block');
         };
@@ -448,9 +541,9 @@ d3.csv("immigration.csv").then(function(data) {
         
         
         
-        ////////////////////
-        // DRAW PIE CHART //
-        ////////////////////
+        ///////////////////////////////////
+        // DRAW PIE CHART AND HIGHTLIGHT //
+        ///////////////////////////////////
 
         // Pie generator
         //let pie = d3.pie()
@@ -493,13 +586,6 @@ d3.csv("immigration.csv").then(function(data) {
             })
             ;
         
-        
-        let dataYear = pie_chart_info[1]; // year in decades
-        let sliderYear = pie_chart_info[2]; // year on the slider
-        
-        //console.log(`dataYear: ${dataYear}`);
-        //console.log(`sliderYear: ${sliderYear}`);
-        
         //Pie Chart Title with changing year
         svg_pie_chart.append("text")
             .attr("id", "pie-chart-title")
@@ -516,17 +602,24 @@ d3.csv("immigration.csv").then(function(data) {
             .attr("y", radius+10)
             .attr("text-anchor", "middle");
         
-        // Check each event and show history note
-        selectHstNote(dataYear, sliderYear);
-         
     }
 
 
     
+    //////////////////////
+    // UPDATE PIE CHART //
+    //////////////////////
+    
     function updatePieChart(dataset, h) {
 
         let pie_chart_info = selectPieDataByYear(h);
-
+        
+        let dataYear = pie_chart_info[1]; // year in decades
+        let sliderYear = pie_chart_info[2]; // year on the slider
+        
+        // Check each event and show history note
+        selectHstNote(dataYear, sliderYear);
+        
         // same data year, no need to redraw
         if (pie_chart_info_last[1] == pie_chart_info[1]) {
             return;
@@ -552,13 +645,7 @@ d3.csv("immigration.csv").then(function(data) {
 
         }
 
-
         //console.log(pieData);
-
-
-        //////////////////////
-        // UPDATE PIE CHART //
-        //////////////////////
 
         // Update pie generator value
         pie.value(function(d) {
@@ -587,18 +674,11 @@ d3.csv("immigration.csv").then(function(data) {
             };
         }
         
-        let dataYear = pie_chart_info[1]; // year in decades
-        let sliderYear = pie_chart_info[2]; // year on the slider
-        
         //Pie Chart Title with changing year
         d3.select('#pie-chart-title')
             .text(`${dataYear} Immigration Background`);
         
-        // Check each event and show history note
-        selectHstNote(dataYear, sliderYear);
-        
     }
-    
     
 });
 
@@ -704,53 +784,60 @@ function selectPieDataByYear(h) {
 
 
 function selectHstNote(dataYear, sliderYear) {
+    
+    //console.log(sliderYear);
+    
     if (sliderYear >= 1840 && sliderYear <= 1860) {
-        d3.select('.hstnote')
-            .text('1840-1860: Irish potato famine, many flee Ireland');
-    }
-    if (sliderYear == 1859) {
-        d3.select('.hstnote')
-            .text('1859: California passes law that bans all immigration from China');
-    }
-    if (dataYear == 1880) {
+        if (sliderYear == 1859) {
+            d3.select('.hstnote')
+                .text('1859: California passes law that bans all immigration from China');
+        } else {
+            d3.select('.hstnote')
+                .text('1840-1860: Irish potato famine, many flee Ireland');
+        }
+    } else
+    if (sliderYear >= 1881 && sliderYear <= 1883) {
         d3.select('.hstnote')
             .text('1882: Chinese Exclusion Act bans all immigration from China into California');
-    }
-    if (dataYear == 1910) {
+    } else
+    if (sliderYear >= 1910 && sliderYear <= 1917) {
         d3.select('.hstnote')
             .text('1910-1917: Mexican revolution causes refugees to flee to the US');
-    }
-    if (dataYear == 1930) {
+    } else
+    if (sliderYear >= 1930 && sliderYear <= 1933) {
         d3.select('.hstnote')
             .text('1930: The Great Depression causes downturn in immigration');
-    }
-    if (dataYear == 1940) {
+    } else
+    if (sliderYear >= 1943 && sliderYear <= 1945) {
         d3.select('.hstnote')
             .text('1943: US and China ally against Japan during WWII, Chinese Exclusion Act repealed');
-    }
-    if (dataYear == 1960) {
+    } else
+    if (sliderYear >= 1964 && sliderYear <= 1966) {
         d3.select('.hstnote')
             .text('1965: Immigration Nationality Act allows visas based on skill and family');
-    }
+    } else
     if (sliderYear >= 1970 && sliderYear <= 1973) {
         d3.select('.hstnote')
             .text('1970-1973: US sponsored coup in Chile');
-    }
+    } else
     if (sliderYear >= 1975 && sliderYear <= 1977) {
         d3.select('.hstnote')
             .html(`<tspan x="0" text-anchor="middle">1976: US sponsored coup in Argentina</tspan><tspan x="0" text-anchor="middle" dy = "20">1976: First Mexican peso crisis</tspan>`);
-    }
+    } else
     if (sliderYear >= 1978 && sliderYear <= 1979) {
         d3.select('.hstnote')
             .text('1978-1979: Iranian revolution sparks mass exodus');
-    }
+    } else
     if (sliderYear >= 1981 && sliderYear <= 1990) {
         d3.select('.hstnote')
             .text('1981-1990: US sponsored coup in Nicaragua (Iran-Contra)');
-    }
-    if (sliderYear >= 1991 && sliderYear <= 1998) {
+    } else
+    if (sliderYear >= 1994 && sliderYear <= 1998) {
         d3.select('.hstnote')
             .text('1994: NAFTA passes, Mexican goods production declines');
+    } else {
+        d3.select('.hstnote')
+            .text('');
     }
     
 }
