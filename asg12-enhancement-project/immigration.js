@@ -7,12 +7,12 @@
 // Modified by Herbert Li
 
 // set the dimensions and margins of the graph
-var margin = {top: 50, bottom: 50, left: 80, right: 180},
+let margin = {top: 50, bottom: 50, left: 80, right: 180},
     width = 860 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
 // append the svg for area chart to the body of the page
-var svg = d3.select("#stacked_area_chart")
+let svg = d3.select("#stacked_area_chart")
     .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -21,7 +21,7 @@ var svg = d3.select("#stacked_area_chart")
 
 // append the svg for area chart slider to the body of the page
 const height_slider = 50;
-var svg_slider = d3.select("#stacked_area_chart_slider")
+let svg_slider = d3.select("#stacked_area_chart_slider")
     .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height_slider)
@@ -29,13 +29,22 @@ var svg_slider = d3.select("#stacked_area_chart_slider")
     .attr("transform", `translate(${margin.left}, ${height_slider/2})`);
 
 // appened the svg for the pie chart to the body of the page
-var svg_pie_chart = d3.select("#pie_chart")
+let svg_pie_chart = d3.select("#pie_chart")
     .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform", `translate(${width/2+margin.left}, ${height/2+margin.top})`);
-var radius = Math.min(width, height) / 2;
+let radius = Math.min(width, height) / 2;
+
+// append the svg for the pie chart tooltip to the pie chart
+let tooltip = d3.select('#pie_chart')
+    .append('div')
+    .attr('class', 'tooltip');
+tooltip.append('div')
+    .attr('class', 'country');    
+tooltip.append('div')
+    .attr('class', 'percentage');
 
 // create a black bar behind the char for the date slider
 svg.append('line')
@@ -63,17 +72,17 @@ d3.csv("immigration.csv").then(function(data) {
     });
   
     // List of groups = header of the csv files
-    var keys = data.columns.slice(1);
+    let keys = data.columns.slice(1);
     
     console.log(keys);
 
     // color palette
-    var color = d3.scaleOrdinal()
+    let color = d3.scaleOrdinal()
         .domain(keys)
         .range(d3.schemeCategory10);
 
     // stack the data?
-    var stackedData = d3.stack()
+    let stackedData = d3.stack()
         .keys(keys)(data);
     
     console.log(stackedData);
@@ -84,14 +93,14 @@ d3.csv("immigration.csv").then(function(data) {
     /////////////////
     
     // Define X axis
-    var x = d3
+    let x = d3
         .scaleTime()
         .domain(d3.extent(data, d => d.year))
         .range([0, width])
         .clamp(true);
     
     // Define Y axis
-    var y = d3.scaleLinear()
+    let y = d3.scaleLinear()
         .domain([0, 40]) // 0% to 40%
         .range([height, 0]);
     
@@ -102,7 +111,7 @@ d3.csv("immigration.csv").then(function(data) {
     /////////////////////////////
 
     // Add a clipPath: everything out of this area won't be drawn.
-    var clip = svg.append("defs").append("svg:clipPath")
+    let clip = svg.append("defs").append("svg:clipPath")
         .attr("id", "clip")
         .append("svg:rect")
         .attr("width", 0)
@@ -116,16 +125,16 @@ d3.csv("immigration.csv").then(function(data) {
         .attr("width", width);
 
     // Add brushing
-    var brush = d3.brushX() // Add the brush feature using the d3.brush function
+    let brush = d3.brushX() // Add the brush feature using the d3.brush function
         .extent( [ [0,0], [width,height] ] ) // initialise the brush area: start at 0,0 and finishes at width,height: it means I select the whole graph area
         .on("end", updateChart) // Each time the brush selection changes, trigger the 'updateChart' function
 
-    // Create the scatter variable: where both the circles and the brush take place
-    var areaChart = svg.append('g')
+    // Create the scatter letiable: where both the circles and the brush take place
+    let areaChart = svg.append('g')
         .attr("clip-path", "url(#clip)")
 
     // Area chart generator
-    var area = d3.area()
+    let area = d3.area()
         .x(d => x(d.data.year))
         .y0(d => y(d[0]))
         .y1(d => y(d[1]))
@@ -147,7 +156,7 @@ d3.csv("immigration.csv").then(function(data) {
         .attr("class", "brush")
         .call(brush);
 
-    var idleTimeout;
+    let idleTimeout;
     function idled() { idleTimeout = null; }
 
     // A function that update the chart for given boundaries
@@ -181,11 +190,11 @@ d3.csv("immigration.csv").then(function(data) {
     ///////////////
 
     // Add X axis
-    var xAxisDrawFunc = d3
+    let xAxisDrawFunc = d3
         .axisBottom(x)
         .ticks(d3.timeYear.every(20))
         ;
-    var xAxis = svg.append("g")
+    let xAxis = svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
         .call(xAxisDrawFunc)
@@ -239,7 +248,7 @@ d3.csv("immigration.csv").then(function(data) {
     ////////////
 
     // Add one dot in the legend for each name.
-    var size = 20;
+    let size = 20;
     svg.selectAll("myrect")
         .data(keys)
         .enter()
@@ -275,10 +284,11 @@ d3.csv("immigration.csv").then(function(data) {
     /////////////////
     
     // Add the slider into the svg
-    var slider = svg_slider.append("g")
+    let slider = svg_slider.append("g")
         .attr("class", "slider")
         ;
-
+    
+    // Create slider
     slider.append("line")
         .attr("class", "track")
         .attr("x1", x.range()[0])
@@ -296,19 +306,8 @@ d3.csv("immigration.csv").then(function(data) {
                 time(x.invert(d3.event.x));
             }));
     
-    // slider ticks
-    //slider.insert("g", ".track-overlay")
-        //.attr("class", "ticks")
-        //.attr("transform", `translate(${0}, ${0})`)
-        //.selectAll("text")
-        //.data(x.ticks(10))
-        //.enter().append("text")
-        //.attr("x", x)
-        //.attr("text-anchor", "middle")
-        //.text(function(d) { return d3.timeFormat("%Y")(d); })
-        //;
-
-    var handle = slider.insert("circle", ".track-overlay")
+    // Create slider handle
+    let handle = slider.insert("circle", ".track-overlay")
         .attr("class", "slider-handle")
         .attr("r", 9);
     
@@ -316,10 +315,9 @@ d3.csv("immigration.csv").then(function(data) {
     //slider.transition() // Gratuitous intro!
     //    .duration(750)
     //    .tween("time", function() {
-    //        var i = d3.interpolate(new Date("1850"), new Date("1970"));
+    //        let i = d3.interpolate(new Date("1850"), new Date("1970"));
     //        return function(t) { time(i(t)); };
     //    });
-    
     
     
     function time(h) {
@@ -338,7 +336,8 @@ d3.csv("immigration.csv").then(function(data) {
         
         //console.log(new Date("1855").getUTCFullYear());
         
-        let pie_chart_info = [12, 1970, 1970]; // index, data year, slider year
+        // default index, data year, slider year
+        let pie_chart_info = [12, 1970, 1970];
         
         // determine which pie chart to draw
         if (h.getUTCFullYear() <= 1855) {
@@ -431,6 +430,7 @@ d3.csv("immigration.csv").then(function(data) {
         
         //console.log((pie_chart_info));
         
+        // Pass only the data of a specific year to the function
         draw_pie_chart(data[pie_chart_info[0]], pie_chart_info);
             
     }
@@ -444,18 +444,18 @@ d3.csv("immigration.csv").then(function(data) {
     // PIE CHART //
     ///////////////
     
-    //var data1 = [{"letter":"q","presses":1},{"letter":"w","presses":5},{"letter":"e","presses":2}];
+    //let data1 = [{"letter":"q","presses":1},{"letter":"w","presses":5},{"letter":"e","presses":2}];
     //console.log(data1);
     
     //console.log(data[0]);
     
     function draw_pie_chart(data, pie_chart_info) {
-        
+
         // remove existing pie chart
         svg_pie_chart.selectAll("*")
             .remove();
         
-        var pie_data = [];
+        let pieData = [];
 
         // Parse row
         for (let [key, value] of Object.entries(data)) {
@@ -463,12 +463,12 @@ d3.csv("immigration.csv").then(function(data) {
             //console.log(`${key}: ${value}`);
             
             if (key != "year"){
-                pie_data.push({key, value});
+                pieData.push({key, value});
             }
             
         }
 
-        //console.log(pie_data);
+        //console.log(pieData);
         
         ///////////////////////////////
         // PIE CHART HIGHLIGHT GROUP //
@@ -490,29 +490,49 @@ d3.csv("immigration.csv").then(function(data) {
             d3.selectAll(".myPie").style("opacity", 1);
         }
         
-
-
+        
+        
+        ///////////////////////
+        // PIE CHART TOOLTIP //
+        ///////////////////////
+        
+        let toolTipShow = function(d) {
+            tooltip.select('.country').html(d.data.key);
+            tooltip.select('.percentage').html(d.data.value + '%');
+            tooltip.style('display', 'block');
+        };
+        
+        let toolTipHide = function() {
+            tooltip.style('display', 'none');
+        };
+        
+        let toolTipMove = function() {
+            tooltip.style('top', (d3.event.pageY + 10) + 'px')
+                .style('left', (d3.event.pageX + 10) + 'px');
+        };
+        
+        
+        
         ////////////////////
         // DRAW PIE CHART //
         ////////////////////
 
         // Pie generator
-        var pie = d3.pie()
+        let pie = d3.pie()
             .value(function(d) {
                 return d.value;
-            })
-            (pie_data);
+            })(pieData);
         
         // Arc generator
-        var arc = d3.arc()
+        let arc = d3.arc()
         .outerRadius(radius - 10)
         .innerRadius(0);
 
-        var labelArc = d3.arc()
+        let labelArc = d3.arc()
         .outerRadius(radius - 40)
         .innerRadius(radius - 40);
 
-        var g_pie = svg_pie_chart.selectAll("arc")
+        let g_pie = svg_pie_chart.selectAll("arc")
         .data(pie)
         .enter().append("g")
         .attr("class", "arc");
@@ -521,13 +541,22 @@ d3.csv("immigration.csv").then(function(data) {
         .attr("class", d => `myPie ${d.data.key}`)
         .attr("d", arc)
         .style("fill", d => color(d.data.key))
-        .on("mouseover", highlightPie)
-        .on("mouseleave", noHighlightPie)
+        .on("mouseover", function(d) {
+            highlightPie(d);
+            toolTipShow(d);
+        })
+        .on("mouseleave", function(d) {
+            noHighlightPie(d);
+            toolTipHide();
+        })
+        .on('mousemove', function() {
+            toolTipMove();
+        })
         ;
         
         
         let dataYear = pie_chart_info[1]; // year in decades
-        let currYear = pie_chart_info[2]; // year by year
+        let sliderYear = pie_chart_info[2]; // year on the slider
         
         //Pie Chart Title with changing year
         svg_pie_chart.append("text")
@@ -548,7 +577,7 @@ d3.csv("immigration.csv").then(function(data) {
         
         
         // Check each event and show history note
-        if (currYear >= 1840 && currYear < 1860) {
+        if (sliderYear >= 1840 && sliderYear < 1860) {
             d3.select('.hstnote')
                 .text('1840-1860: Irish potato famine, many flee Ireland');
         }
@@ -576,23 +605,23 @@ d3.csv("immigration.csv").then(function(data) {
             d3.select('.hstnote')
                 .text('1965: Immigration Nationality Act allows visas based on skill and family');
         }
-        if (currYear >= 1970 && currYear <= 1973) {
+        if (sliderYear >= 1970 && sliderYear <= 1973) {
             d3.select('.hstnote')
                 .text('1970-1973: US sponsored coup in Chile');
         }
-        if (currYear >= 1975 && currYear <= 1977) {
+        if (sliderYear >= 1975 && sliderYear <= 1977) {
             d3.select('.hstnote')
                 .html(`<tspan x="0" text-anchor="middle">1976: US sponsored coup in Argentina</tspan><tspan x="0" text-anchor="middle" dy = "20">1976: First Mexican peso crisis</tspan>`);
         }
-        if (currYear >= 1978 && currYear <= 1979) {
+        if (sliderYear >= 1978 && sliderYear <= 1979) {
             d3.select('.hstnote')
                 .text('1978-1979: Iranian revolution sparks mass exodus');
         }
-        if (currYear >= 1981 && currYear <= 1990) {
+        if (sliderYear >= 1981 && sliderYear <= 1990) {
             d3.select('.hstnote')
                 .text('1981-1990: US sponsored coup in Nicaragua (Iran-Contra)');
         }
-        if (currYear >= 1991 && currYear <= 1998) {
+        if (sliderYear >= 1991 && sliderYear <= 1998) {
             d3.select('.hstnote')
                 .text('1994: NAFTA passes, Mexican goods production declines');
         }
