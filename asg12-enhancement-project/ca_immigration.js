@@ -60,7 +60,7 @@ console.log(parseTime(1970));
 
 
 // Parse the Data
-d3.csv("immigration.csv").then(function(data) {
+d3.csv("ca_immigration.csv").then(function(data) {
     
     console.log(data);
     
@@ -115,7 +115,7 @@ d3.csv("immigration.csv").then(function(data) {
     let events;
     
     // Parse historical events text
-    d3.json("historical_events.json").then(function(histEventsData) {
+    d3.json("ca_immigration_historical_events.json").then(function(histEventsData) {
     
         console.log(histEventsData.events);
         
